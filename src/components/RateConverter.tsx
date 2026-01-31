@@ -401,16 +401,20 @@ export function RateConverter() {
         <Card className="p-5 bg-muted">
           <h4 className="text-lg font-semibold mb-2">Tasa Efectiva</h4>
           <p className="text-sm text-muted-foreground">
-            Representa el costo real del dinero, considerando la capitalización de
-            intereses durante el período.
+            Es el porcentaje real que se gana o se paga en un período determinado (por ejemplo, en un año). Incluye el efecto de los intereses que se van sumando sobre el capital, es decir, los intereses ganan más intereses.
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            <strong>Ejemplo:</strong> Si en un año depositas dinero y los intereses se suman cada mes, la tasa efectiva muestra cuánto ganaste realmente al final del año con esas sumas mensuales.
           </p>
         </Card>
 
         <Card className="p-5 bg-muted">
           <h4 className="text-lg font-semibold mb-2">Tasa Nominal</h4>
           <p className="text-sm text-muted-foreground">
-            Es la tasa de interés que se enuncia sin tener en cuenta la
-            capitalización de intereses.
+            Es un porcentaje que indica cuánto se ganará o pagará en intereses, pero sin tener en cuenta la acumulación de los intereses durante el período. Suele expresarse junto con la frecuencia de capitalización (mensual, trimestral, etc.).
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            <strong>Ejemplo:</strong> Una tasa nominal anual del 12 % con capitalización mensual significa que se cobra 1 % cada mes, pero no refleja directamente la ganancia o costo total del año.
           </p>
         </Card>
       </div>
