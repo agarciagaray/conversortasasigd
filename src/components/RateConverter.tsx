@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { Calculator, RotateCcw, ArrowRight, Copy, Check, AlertCircle, CheckCircle2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -11,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AlertCircle, ArrowRight, Calculator, Check, CheckCircle2, Copy, RotateCcw } from "lucide-react";
+import { useState } from "react";
 
 const periodMultipliers: Record<string, number> = {
   anual: 1,
@@ -352,7 +352,7 @@ export function RateConverter() {
             <h3 className="text-sm uppercase tracking-wider text-muted-foreground font-semibold mb-4">
               Fórmula Utilizada
             </h3>
-            
+
             <div className="relative bg-background border rounded-lg p-5 mb-4">
               <Button
                 variant="outline"
@@ -394,6 +394,26 @@ export function RateConverter() {
           </div>
         </Card>
       )}
+
+      {/* Explanatory Boxes: always rendered at the end of the page; when a result
+          exists they appear below it because they are placed after the result */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="p-5 bg-muted">
+          <h4 className="text-lg font-semibold mb-2">Tasa Efectiva</h4>
+          <p className="text-sm text-muted-foreground">
+            Representa el costo real del dinero, considerando la capitalización de
+            intereses durante el período.
+          </p>
+        </Card>
+
+        <Card className="p-5 bg-muted">
+          <h4 className="text-lg font-semibold mb-2">Tasa Nominal</h4>
+          <p className="text-sm text-muted-foreground">
+            Es la tasa de interés que se enuncia sin tener en cuenta la
+            capitalización de intereses.
+          </p>
+        </Card>
+      </div>
     </div>
   );
 }
