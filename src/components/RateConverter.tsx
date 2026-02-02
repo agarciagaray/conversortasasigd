@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { AlertCircle, ArrowRight, Calculator, Check, CheckCircle2, Copy, RotateCcw } from "lucide-react";
 import { useState } from "react";
 
@@ -53,6 +54,7 @@ export function RateConverter() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [interpretAsPeriodic, setInterpretAsPeriodic] = useState(false);
 
   const formatNumber = (num: number, decimals = 5): string => {
     if (num === null || num === undefined || isNaN(num)) return "0";
@@ -133,16 +135,30 @@ export function RateConverter() {
         const mFrom = periodMultipliers[periodFrom];
         const mTo = periodMultipliers[periodTo];
 
-        const effectiveAnnual = Math.pow(1 + rateDecimal / mFrom, mFrom) - 1;
-        resultValue = Math.pow(1 + effectiveAnnual, 1 / mTo) - 1;
+        let effectiveAnnual: number;
+        if (interpretAsPeriodic) {
+          // rateDecimal is a periodic rate (e.g., monthly rate = 1.96% per month)
+          effectiveAnnual = Math.pow(1 + rateDecimal, mFrom) - 1;
+          formula = "iE = (1 + i_period)^m - 1";
+          description = `Donde se convierte la Tasa periódica ${periodNames[periodFrom]} a Tasa Efectiva ${periodNames[periodTo]}.`;
+          variables = [
+            { name: "i_period", description: `Tasa por periodo ${periodNames[periodFrom]} (${rate}%)` },
+            { name: "iE", description: `Tasa Efectiva ${periodNames[periodTo]} (resultado)` },
+            { name: "m", description: `Número de períodos ${periodNames[periodFrom]} en un año (${mFrom})` },
+          ];
+        } else {
+          // rateDecimal is a nominal annual rate convertible m times per year
+          effectiveAnnual = Math.pow(1 + rateDecimal / mFrom, mFrom) - 1;
+          formula = "iE = (1 + iN/m)^m - 1";
+          description = `Donde se convierte la Tasa Nominal ${periodNames[periodFrom]} a Tasa Efectiva ${periodNames[periodTo]}.`;
+          variables = [
+            { name: "iN", description: `Tasa Nominal ${periodNames[periodFrom]} (${rate}%)` },
+            { name: "iE", description: `Tasa Efectiva ${periodNames[periodTo]} (resultado)` },
+            { name: "m", description: `Número de períodos ${periodNames[periodFrom]} en un año (${mFrom})` },
+          ];
+        }
 
-        formula = "iE = (1 + iN/m)^m - 1";
-        description = `Donde se convierte la Tasa Nominal ${periodNames[periodFrom]} a Tasa Efectiva ${periodNames[periodTo]}.`;
-        variables = [
-          { name: "iN", description: `Tasa Nominal ${periodNames[periodFrom]} (${rate}%)` },
-          { name: "iE", description: `Tasa Efectiva ${periodNames[periodTo]} (resultado)` },
-          { name: "m", description: `Número de períodos ${periodNames[periodFrom]} en un año (${mFrom})` },
-        ];
+        resultValue = Math.pow(1 + effectiveAnnual, 1 / mTo) - 1;
       }
 
       setResult({
@@ -242,6 +258,22 @@ export function RateConverter() {
               className="bg-background"
             />
           </div>
+        </div>
+
+        {/* Interpretación de la tasa (nominal = anual vs tasa por periodo) */}
+        <div className="flex items-center gap-3 mb-6">
+          <Switch
+            id="interpretAsPeriodic"
+            checked={interpretAsPeriodic}
+            onCheckedChange={(v) => {
+              setInterpretAsPeriodic(Boolean(v));
+              clearMessages();
+            }}
+          />
+          <Label htmlFor="interpretAsPeriodic" className="text-sm">
+            Interpretar entrada como <strong>tasa por periodo</strong> (ej. 1.96% = 1.96%/mes). Si está desactivado,
+            la tasa nominal se interpreta como anual convertible (iN anual).
+          </Label>
         </div>
 
         {/* Row 2: Periodo Origen + Tipo de Tasa Destino */}
@@ -398,6 +430,19 @@ export function RateConverter() {
       {/* Explanatory Boxes: always rendered at the end of the page; when a result
           exists they appear below it because they are placed after the result */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="col-span-1 md:col-span-2 p-4 bg-background border rounded-lg">
+          <h4 className="font-semibold mb-2">Ejemplos rápidos</h4>
+          <ul className="text-sm list-disc pl-5">
+            <li>
+              Si introduces <strong>1.96%</strong> y activas "Interpretar como tasa por periodo" con periodo origen
+              <strong>Mensual</strong>, se interpreta como 1.96% mensual → TEA ≈ <strong>26.228645%</strong>.
+            </li>
+            <li>
+              Si introduces <strong>1.96%</strong> y desactivas el switch (tasa nominal anual convertible m=12),
+              entonces 1.96% (iN anual) → TEA ≈ <strong>1.977704%</strong>.
+            </li>
+          </ul>
+        </div>
         <Card className="p-5 bg-muted">
           <h4 className="text-lg font-semibold mb-2">Tasa Efectiva</h4>
           <p className="text-sm text-muted-foreground">
